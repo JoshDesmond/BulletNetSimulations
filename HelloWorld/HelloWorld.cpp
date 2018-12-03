@@ -17,25 +17,18 @@ subject to the following restrictions:
 #include "btBulletDynamicsCommon.h"
 #include <stdio.h>
 
-/// This is a Hello World program for running a basic Bullet physics simulation
-
 int main(int argc, char** argv)
 {
-	///-----includes_end-----
-
-	int i;
-	///-----initialization_start-----
-
-	///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
+	/// collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration.
 	btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
-	///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+	/// default collision dispatcher. 
 	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
-	///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep.
+	///broadphase. (Also see btAxis3Sweep)
 	btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
-
-	///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
+	
+	/// default constraint solver.
 	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
 	btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
@@ -63,12 +56,7 @@ int main(int argc, char** argv)
 
 		btScalar mass(0.);
 
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
 		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
-			groundShape->calculateLocalInertia(mass, localInertia);
 
 		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
 		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
@@ -92,12 +80,8 @@ int main(int argc, char** argv)
 
 		btScalar mass(1.f);
 
-		//rigidbody is dynamic if and only if mass is non zero, otherwise static
-		bool isDynamic = (mass != 0.f);
-
 		btVector3 localInertia(0, 0, 0);
-		if (isDynamic)
-			colShape->calculateLocalInertia(mass, localInertia);
+		colShape->calculateLocalInertia(mass, localInertia);
 
 		startTransform.setOrigin(btVector3(2, 10, 0));
 
@@ -108,10 +92,13 @@ int main(int argc, char** argv)
 
 		dynamicsWorld->addRigidBody(body);
 	}
+	
+	{
+		// Alternative, create dynamic softbody, based on code above
+		
+	}
 
-	/// Do some simulation
-
-	///-----stepsimulation_start-----
+	int i;
 	for (i = 0; i < 150; i++)
 	{
 		dynamicsWorld->stepSimulation(1.f / 60.f, 10);
@@ -134,10 +121,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	///-----stepsimulation_end-----
-
 	//cleanup in the reverse order of creation/initialization
-
 	///-----cleanup_start-----
 
 	//remove the rigidbodies from the dynamics world and delete them
